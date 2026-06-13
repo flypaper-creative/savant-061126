@@ -64,7 +64,7 @@ const defaultTelemetry: TelemetryData = {
 const AppStateContext = createContext<AppStateContextType | undefined>(undefined);
 
 export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [phase, setPhaseState] = useState<AppPhase>('BOOT');
+  const [phase, setPhaseState] = useState<AppPhase>('FLIGHT');
   const [pilotConfig, setPilotConfig] = useState<PilotConfig>(defaultPilotConfig);
   const [telemetry, setTelemetry] = useState<TelemetryData>(defaultTelemetry);
   const [opticMode, setOpticMode] = useState<OpticMode>('STD_OPTIC');
@@ -89,6 +89,57 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const setAsteroidTheme = useCallback((theme: AsteroidTheme) => {
     setAsteroidThemeState(theme);
     addTelemetryLog(`GEOLOGY_CHRON: ALCHEMIC MATERIAL RESTRUCTURE ENGAGED -> ${theme}`);
+    
+    // Map theme to corresponding HUD config and neon spotlight colors
+    let hudColorName: 'CYAN' | 'EMERALD' | 'AMBER' | 'RUBY' = 'CYAN';
+    let hudColor = '#00f2ff';
+    let spotColor = '#ffffff';
+    
+    switch (theme) {
+      case 'CHROME_BLOOD':
+        hudColorName = 'RUBY';
+        hudColor = '#ef4444';
+        spotColor = '#ff2d2d';
+        break;
+      case 'GOLD_GUNMETAL':
+        hudColorName = 'AMBER';
+        hudColor = '#f59e0b';
+        spotColor = '#f59e0b';
+        break;
+      case 'OBSIDIAN_MOTTLED':
+        hudColorName = 'CYAN';
+        hudColor = '#00f2ff';
+        spotColor = '#00f2ff';
+        break;
+      case 'CARBON_VIOLET':
+        hudColorName = 'RUBY';
+        hudColor = '#d946ef';
+        spotColor = '#d946ef';
+        break;
+      case 'OPAL_STARDUST':
+        hudColorName = 'AMBER';
+        hudColor = '#fba875';
+        spotColor = '#fdba74';
+        break;
+      case 'IRON_GREEN':
+        hudColorName = 'EMERALD';
+        hudColor = '#10b981';
+        spotColor = '#10b981';
+        break;
+      case 'QUICKSILVER_COPPER':
+        hudColorName = 'AMBER';
+        hudColor = '#f97316';
+        spotColor = '#f97316';
+        break;
+    }
+    
+    setPilotConfig((prev) => ({
+      ...prev,
+      hudColorName,
+      hudColor,
+    }));
+    
+    setSpotlightColor(spotColor);
   }, [addTelemetryLog]);
 
   // Set phase with log

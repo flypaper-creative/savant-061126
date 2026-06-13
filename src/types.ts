@@ -19,19 +19,19 @@ export interface PilotConfig {
 }
 
 export interface TelemetryData {
-  velocity: number;      // m/s
-  altitude: number;      // km
-  latitude: number;
-  longitude: number;
-  powerLevels: number;   // %
-  shieldCap: number;     // %
-  gateProgress: number;  // 0 to 100 per gate
-  currentGate: number;   // 1 to 5
-  flightMode: 'CRUISE' | 'NEWTONIAN' | 'AUTOPILOT';
-  nearestAsteroidDist: number;
-  nearestAsteroidName: string;
-  thrusterSensitivity: number;
-  targetSpeedSetting: number;
+  velocity: number;      // Mapped to Polygon Density in Studio HUD
+  altitude: number;      // Mapped to Morphing Wave Frequency in Studio HUD
+  latitude: number;      // X displacement
+  longitude: number;     // Y displacement
+  powerLevels: number;   // Mapped to Lens Aberration Intensity in Studio HUD
+  shieldCap: number;     // Mapped to Audio Synth Core Volume in Studio HUD
+  gateProgress: number;  // Processing / Render Compile rate (0 - 100)
+  currentGate: number;   // Active architectural layer/block index (1 to 4)
+  flightMode: 'CRUISE' | 'NEWTONIAN' | 'AUTOPILOT'; // Wireframe vs Flat vs Refracted
+  nearestAsteroidDist: number; // Mapped to audio resonance Q-factor
+  nearestAsteroidName: string; // Active render block name
+  thrusterSensitivity: number; // Block rotation speed multiplier
+  targetSpeedSetting: number;  // Target frame processing rate
 }
 
 export type OpticMode = 'STD_OPTIC' | 'BIO_THERM' | 'ECHO_PULSE' | 'VOID_DRIVE';
@@ -46,4 +46,3 @@ export interface SystemError {
   componentStack?: string;
   severity: 'WARNING' | 'CRITICAL' | 'FAULT';
 }
-

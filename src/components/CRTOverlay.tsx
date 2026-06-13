@@ -45,7 +45,7 @@ export const CRTOverlay: React.FC = () => {
           scanlineColor: 'rgba(255, 10, 10, 0.16)',
           chromaticShift: 'text-shadow-red',
           borderDecoration: 'border-red-950/60',
-          title: 'CHROME BLOOD RECON SCANNET',
+          title: '03 — NINE INCH NAILS: MONOMETRIC BRUTALITY INDEX',
           effectStyle: 'mix-blend-color-dodge opacity-85',
         };
       case 'GOLD_GUNMETAL':
@@ -55,7 +55,7 @@ export const CRTOverlay: React.FC = () => {
           scanlineColor: 'rgba(245, 158, 11, 0.14)',
           chromaticShift: 'text-shadow-gold',
           borderDecoration: 'border-amber-950/60',
-          title: 'GOLD GUNMETAL CALIBRATION STREAM',
+          title: '06 — SOLAR CATHEDRAL: GRAND COSMIC VESSEL CONTROL',
           effectStyle: 'mix-blend-overlay opacity-90',
         };
       case 'OBSIDIAN_MOTTLED':
@@ -65,7 +65,7 @@ export const CRTOverlay: React.FC = () => {
           scanlineColor: 'rgba(0, 242, 255, 0.15)',
           chromaticShift: 'text-shadow-cyan',
           borderDecoration: 'border-cyan-950/60',
-          title: 'OBSIDIAN SONAR MATRIX FEED',
+          title: '01 — MINORITY REPORT: SPATIAL TELEMETRY FEED',
           effectStyle: 'mix-blend-screen opacity-80',
         };
       case 'CARBON_VIOLET':
@@ -75,7 +75,7 @@ export const CRTOverlay: React.FC = () => {
           scanlineColor: 'rgba(217, 70, 239, 0.18)',
           chromaticShift: 'text-shadow-purple',
           borderDecoration: 'border-purple-950/60',
-          title: 'CARBON NEURAL PLASMA POLARITY',
+          title: '05 — ALIEN BIOSYSTEM: BIOLOGICAL CORE READOUT',
           effectStyle: 'mix-blend-color-dodge opacity-90',
         };
       case 'OPAL_STARDUST':
@@ -85,7 +85,7 @@ export const CRTOverlay: React.FC = () => {
           scanlineColor: 'rgba(253, 186, 116, 0.15)',
           chromaticShift: 'text-shadow-orange',
           borderDecoration: 'border-orange-950/60',
-          title: 'OPAL CHROMA REFRACTIVE PRISM',
+          title: '07 — DEEP UNKNOWN: UNCHARTED COGNITION HARNESS',
           effectStyle: 'mix-blend-screen opacity-85',
         };
       case 'IRON_GREEN':
@@ -95,7 +95,7 @@ export const CRTOverlay: React.FC = () => {
           scanlineColor: 'rgba(34, 197, 94, 0.18)',
           chromaticShift: 'text-shadow-green',
           borderDecoration: 'border-emerald-950/60',
-          title: 'IRON URANIUM RADAR OSCILLOSCOPE',
+          title: '04 — 2001: GEOMETRIC PURITY GRID',
           effectStyle: 'mix-blend-normal opacity-90',
         };
       case 'QUICKSILVER_COPPER':
@@ -105,7 +105,7 @@ export const CRTOverlay: React.FC = () => {
           scanlineColor: 'rgba(249, 115, 22, 0.18)',
           chromaticShift: 'text-shadow-copper',
           borderDecoration: 'border-amber-900/40',
-          title: 'QUICKSILVER CRYO THERMAL RAD',
+          title: '02 — BLADE RUNNER 2049: HAZARD SCANNER',
           effectStyle: 'mix-blend-color-dodge opacity-85',
         };
       default:

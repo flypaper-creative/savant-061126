@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useAppState } from '../contexts/AppStateContext';
-import { useAudio } from '../hooks/useAudio';
+import { useAppState } from './contexts/AppStateContext';
+import { useAudio } from './hooks/useAudio';
 import { motion } from 'motion/react';
 import { Terminal as TerminalIcon, User, Layers, ShieldAlert, Cpu, Check, Activity, ShieldCheck, Zap, Server } from 'lucide-react';
-import { ArcadeCalibrator } from './ArcadeCalibrator';
+import { ArcadeCalibrator } from './components/ArcadeCalibrator';
 
 export const BootScreen: React.FC = () => {
   const { updatePilotConfig, setPhase, addTelemetryLog } = useAppState();
@@ -101,29 +101,44 @@ export const BootScreen: React.FC = () => {
     }, 120);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent | React.MouseEvent) => {
     e.preventDefault();
-    initAudioCtx();
     
-    // Play sound FX
-    playDiagnosticBlip(880, 0.15);
-    setTimeout(() => {
-      playDiagnosticBlip(1040, 0.2);
-    }, 100);
+    try {
+      initAudioCtx();
+    } catch (err) {
+      console.warn('Audio Context init caught/bypassed:', err);
+    }
+    
+    try {
+      // Play sound FX
+      playDiagnosticBlip(880, 0.15);
+      setTimeout(() => {
+        try {
+          playDiagnosticBlip(1040, 0.2);
+        } catch (e) {}
+      }, 100);
+    } catch (err) {
+      console.warn('Diagnostic sound play caught/bypassed:', err);
+    }
 
-    // Save configuration variables
-    updatePilotConfig({
-      callsign: callsign.trim().toUpperCase() || 'SAVANT_COCKPIT',
-      division,
-      objective: objective.trim() || 'Classified flight core vector mapping',
-      humFrequency,
-      hudColorName,
-    });
+    try {
+      // Save configuration variables
+      updatePilotConfig({
+        callsign: callsign.trim().toUpperCase() || 'SAVANT_COCKPIT',
+        division,
+        objective: objective.trim() || 'Classified flight core vector mapping',
+        humFrequency,
+        hudColorName,
+      });
 
-    // Start background logs and navigate to active INIT cinematic intro phase
-    addTelemetryLog(`SECURE LOGIN VERIFIED: CALLSIGN "${callsign.toUpperCase()}" SIGNED ON`);
-    addTelemetryLog(`MISSION SCOPE: ${objective}`);
-    addTelemetryLog(`HUD LINKED CONFIG: ${hudColorName}`);
+      // Start background logs and navigate to active INIT cinematic intro phase
+      addTelemetryLog(`SECURE LOGIN VERIFIED: CALLSIGN "${callsign.toUpperCase()}" SIGNED ON`);
+      addTelemetryLog(`MISSION SCOPE: ${objective}`);
+      addTelemetryLog(`HUD LINKED CONFIG: ${hudColorName}`);
+    } catch (err) {
+      console.warn('Pilot config save caught/bypassed:', err);
+    }
     
     setPhase('FLIGHT');
   };
@@ -338,6 +353,7 @@ export const BootScreen: React.FC = () => {
               <button
                 id="boot-sim-validate"
                 type="submit"
+                onClick={handleSubmit}
                 style={{ backgroundColor: themeHex, boxShadow: `0 8px 30px ${themeHex}1a` }}
                 className="w-full flex items-center justify-center gap-2 py-3 bg-white hover:brightness-105 text-black shadow-lg transition duration-400 font-extrabold uppercase tracking-[0.22em] text-[9.5px] rounded-md cursor-pointer active:scale-[0.99] select-none"
               >

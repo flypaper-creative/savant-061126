@@ -2,7 +2,7 @@ import React from 'react';
 import { AppStateProvider, useAppState } from './contexts/AppStateContext';
 import { ErrorBoundary, GlobalErrorInspector } from './components/ErrorDisplay';
 import { ThreeScene } from './components/ThreeScene';
-import { BootScreen } from './components/BootScreen';
+import { BootScreen } from './BootScreen';
 import { CockpitHUD } from './components/CockpitHUD';
 import { CRTOverlay } from './components/CRTOverlay';
 import { DestinationScreen } from './components/DestinationScreen';
@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from 'motion/react';
 
 // Cockpit Inner Layout wrapper that implements real-time visual screen vibration
 const CockpitLayout: React.FC = () => {
-  const { phase, screenShake } = useAppState();
+  const { phase, screenShake, asteroidTheme } = useAppState();
 
   // CSS transform shake offset calculation mapping to current shake level
   const shakeOffset = screenShake > 0 
@@ -21,9 +21,30 @@ const CockpitLayout: React.FC = () => {
     }
     : undefined;
 
+  const getThemeFontClass = () => {
+    switch (asteroidTheme) {
+      case 'CHROME_BLOOD':
+        return 'font-chrome tracking-[0.08em]';
+      case 'GOLD_GUNMETAL':
+        return 'font-gold tracking-normal';
+      case 'OBSIDIAN_MOTTLED':
+        return 'font-obsidian tracking-[0.06em]';
+      case 'CARBON_VIOLET':
+        return 'font-violet tracking-[0.08em]';
+      case 'OPAL_STARDUST':
+        return 'font-opal tracking-[0.12em] text-[15px]';
+      case 'IRON_GREEN':
+        return 'font-iron tracking-wider';
+      case 'QUICKSILVER_COPPER':
+        return 'font-copper tracking-tight';
+      default:
+        return 'font-mono';
+    }
+  };
+
   return (
     <div 
-      className="relative w-full h-screen overflow-hidden bg-black select-none font-mono"
+      className={`relative w-full h-screen overflow-hidden bg-black select-none transition-all duration-750 ${getThemeFontClass()}`}
       style={shakeOffset}
     >
       {/* Dynamic CRT CRT-style Scanline and Film-Grain Overlay */}
