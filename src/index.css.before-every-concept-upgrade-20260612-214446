@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  /* Additional delicate shadows and micro animations for cinematic interfaces */
+  --animate-scanline: scanline 8s linear infinite;
+  --animate-radial-pulse: radialPulse 6s ease-in-out infinite;
+  
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+  @keyframes radialPulse {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.35; }
+  }
+}
+
+/* Custom global scrollbar mechanics for pristine workspace look */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Clean up input focus outlines */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
+/* Global visual defaults */
+body {
+  font-family: var(--font-mono);
+  background-color: #000000;
+  color: #d4d4d8;
+  margin: 0;
+  overflow: hidden;
+}

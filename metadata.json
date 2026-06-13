@@ -1,0 +1,7 @@
+{
+  "name": "Savant Core",
+  "description": "Quantum Cockpit Experience and interactive space flight simulation representing Savant Experimental, a high-end contemporary design studio featuring state-of-the-art 3D WebGL render blocks, custom optics, and real-time audio telemetry.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

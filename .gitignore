@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.cache/
+.vite/
+.env
+.env.*
+!.env.example
+audits/*.tar.gz
+*.log
+.DS_Store

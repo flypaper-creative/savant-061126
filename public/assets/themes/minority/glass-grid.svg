@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.2"/><feColorMatrix values="0 0 0 0 0.45 0 0 0 0 1 0 0 0 0 1 0 0 0 .75 0"/></filter>
+    <linearGradient id="fade" x1="0" x2="1">
+      <stop stop-color="#bfffff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#cfffff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#bfffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="none"/>
+  <g stroke="#bfffff" stroke-opacity=".12" stroke-width="1">
+    <path d="M0 100h1600M0 200h1600M0 300h1600M0 400h1600M0 500h1600M0 600h1600M0 700h1600M0 800h1600M0 900h1600"/>
+    <path d="M100 0v1000M200 0v1000M300 0v1000M400 0v1000M500 0v1000M600 0v1000M700 0v1000M800 0v1000M900 0v1000M1000 0v1000M1100 0v1000M1200 0v1000M1300 0v1000M1400 0v1000M1500 0v1000"/>
+  </g>
+  <g filter="url(#glow)" stroke="url(#fade)" stroke-width="2" fill="none">
+    <path d="M180 500 C410 260 630 260 800 500 S1190 740 1420 500"/>
+    <path d="M260 240 C520 150 990 150 1340 260"/>
+    <path d="M260 760 C520 850 990 850 1340 740"/>
+  </g>
+</svg>
