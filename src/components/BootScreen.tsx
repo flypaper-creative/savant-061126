@@ -142,7 +142,7 @@ export const BootScreen: React.FC = () => {
       
       {/* Background Volumetric Ambient Vignette and Soft Depth Mist */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(10,13,20,0.15)_0%,rgba(0,0,0,0.75)_100%)] pointer-events-none" />
-      <div className="absolute inset-0  pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.003)_50%,rgba(0,0,0,0.1)_50%)] bg-[size:100%_6px] pointer-events-none" />
 
       <div 
         className="w-full max-w-5xl border border-zinc-800/60 bg-[#07090d]/92 backdrop-blur-[24px] rounded-[16px] p-6 md:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.95)] relative grid grid-cols-1 lg:grid-cols-12 gap-8 transition-all duration-700 ease-out opacity-100 scale-100"

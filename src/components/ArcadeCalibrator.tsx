@@ -2009,9 +2009,9 @@ export const ArcadeCalibrator: React.FC<ArcadeCalibratorProps> = ({
         style={{ borderColor: `${themeColor}40` }}
         className="w-full h-80 bg-black border rounded-lg relative overflow-hidden flex flex-col justify-between"
       >
-        {/* Optical glass glare and radial cinematic vignette */}
+        {/* Raster glass glare, scanlines, and radial neon vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.06),transparent_55%)] pointer-events-none z-10" />
-        <div className="absolute inset-0  pointer-events-none z-10 opacity-70" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[size:100%_4px] pointer-events-none z-10 opacity-70" />
 
         {/* Ambient top glowing bar */}
         <div 

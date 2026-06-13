@@ -1,56 +1,70 @@
-import React, { memo, useMemo } from 'react';
+import React from 'react';
 import { AppStateProvider, useAppState } from './contexts/AppStateContext';
 import { ErrorBoundary, GlobalErrorInspector } from './components/ErrorDisplay';
-import { OptimizedSpaceScene } from './components/optimized/OptimizedSpaceScene';
+import { ThreeScene } from './components/ThreeScene';
 import { BootScreen } from './components/BootScreen';
+import { CockpitHUD } from './components/CockpitHUD';
 import { CRTOverlay } from './components/CRTOverlay';
 import { DestinationScreen } from './components/DestinationScreen';
 import { CupolaFrame } from './components/CupolaFrame';
-import { SavantOperationalHUD } from './components/SavantOperationalHUD';
+import { AnimatePresence, motion } from 'motion/react';
 
-const CockpitLayout: React.FC = memo(() => {
-  const { phase, screenShake } = useAppState() as any;
+// Cockpit Inner Layout wrapper that implements real-time visual screen vibration
+const CockpitLayout: React.FC = () => {
+  const { phase, screenShake } = useAppState();
 
-  const shakeStyle = useMemo<React.CSSProperties | undefined>(() => {
-    if (!screenShake || screenShake <= 0) return undefined;
-
-    const magnitude = Math.min(8, screenShake * 1.05);
-    return {
-      transform: `translate3d(${magnitude}px, ${-magnitude * 0.28}px, 0)`,
-      transition: 'transform 80ms ease-out'
-    };
-  }, [screenShake]);
+  // CSS transform shake offset calculation mapping to current shake level
+  const shakeOffset = screenShake > 0 
+    ? {
+      transform: `translate(${(Math.random() - 0.5) * screenShake * 3.5}px, ${(Math.random() - 0.5) * screenShake * 3.5}px)`,
+      transition: 'transform 0.05s ease-out'
+    }
+    : undefined;
 
   return (
-    <div
-      className="relative w-full h-dvh overflow-hidden bg-black select-none font-mono sv-upgraded-shell"
-      style={shakeStyle}
+    <div 
+      className="relative w-full h-screen overflow-hidden bg-black select-none font-mono"
+      style={shakeOffset}
     >
-      <OptimizedSpaceScene />
+      {/* Dynamic CRT CRT-style Scanline and Film-Grain Overlay */}
       <CRTOverlay />
 
-      {phase === 'BOOT' && <CupolaFrame />}
+      {/* 3D WebGL Backing Context Render Engine */}
+      <ThreeScene />
 
-      <SavantOperationalHUD />
+      {/* Cybernetic Spaceship ISS Cupola Window Frame */}
+      {phase === 'BOOT' && (
+        <CupolaFrame />
+      )}
+
+      {/* Primary HTML Dashboard HUD Interfaces */}
+      {(phase === 'BOOT' || phase === 'INIT' || phase === 'FLIGHT') && (
+        <div className="absolute inset-0 z-10 transition-all duration-1000 opacity-100 saturate-100 pointer-events-auto">
+          <CockpitHUD />
+        </div>
+      )}
 
       {phase === 'BOOT' && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/24 backdrop-blur-[2px] pointer-events-auto transition-opacity duration-500 sv-boot-overlay">
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px] pointer-events-auto transition-opacity duration-500"
+        >
           <BootScreen />
         </div>
       )}
 
       {(phase === 'DESTINATION' || phase === 'EXIT') && (
-        <div className="absolute inset-0 z-10 transition-opacity duration-500">
+        <div
+          className="absolute inset-0 z-10 transition-opacity duration-500"
+        >
           <DestinationScreen />
         </div>
       )}
 
+      {/* Floating System log trace debugger drawer */}
       <GlobalErrorInspector />
     </div>
   );
-});
-
-CockpitLayout.displayName = 'CockpitLayout';
+};
 
 export default function App() {
   return (

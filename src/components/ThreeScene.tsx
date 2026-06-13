@@ -19,6 +19,97 @@ interface AsteroidMaps {
   metalnessMap: THREE.CanvasTexture;
 }
 
+const DepthOfFieldShader = {
+  name: 'DepthOfFieldShader',
+  uniforms: {
+    tDiffuse: { value: null as THREE.Texture | null },
+    tDepth: { value: null as THREE.Texture | null },
+    uFocusDistance: { value: 14.0 }, // Dynamic focal plane distance
+    uAperture: { value: 6.5 },       // Extent of deep focus (lower values create shallow depth of field)
+    uMaxBlur: { value: 3.8 },        // Maximum pixel blur radius
+    uNear: { value: 0.1 },
+    uFar: { value: 1000.0 },
+    uResolution: { value: new THREE.Vector2(1024, 768) }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform sampler2D tDepth;
+    uniform float uFocusDistance;
+    uniform float uAperture;
+    uniform float uMaxBlur;
+    uniform float uNear;
+    uniform float uFar;
+    uniform vec2 uResolution;
+
+    varying vec2 vUv;
+
+    // Linearizes depth buffer value back into absolute camera distance (world units)
+    float getLinearDepth(vec2 uv) {
+      float d = texture2D(tDepth, uv).r;
+      float z = d * 2.0 - 1.0;
+      return (2.0 * uNear * uFar) / (uFar + uNear - z * (uFar - uNear));
+    }
+
+    void main() {
+      float centerDepth = getLinearDepth(vUv);
+      
+      // Compute Circle-of-Confusion relative to the primary focus plane
+      float coc = clamp(abs(centerDepth - uFocusDistance) / uAperture, 0.0, 1.0) * uMaxBlur;
+      
+      if (coc < 0.1) {
+        gl_FragColor = texture2D(tDiffuse, vUv);
+        return;
+      }
+      
+      // Beautiful 12-tap Poisson-disk aligned layout for cinematic bokeh shapes
+      vec4 sum = vec4(0.0);
+      float totalWeight = 0.0;
+      
+      sum += texture2D(tDiffuse, vUv);
+      totalWeight += 1.0;
+      
+      vec2 texelSize = vec2(1.0) / uResolution;
+      
+      const int NUM_TAPS = 12;
+      vec2 taps[12];
+      taps[0] = vec2(1.0, 0.0);
+      taps[1] = vec2(0.5, 0.866025);
+      taps[2] = vec2(-0.5, 0.866025);
+      taps[3] = vec2(-1.0, 0.0);
+      taps[4] = vec2(-0.5, -0.866025);
+      taps[5] = vec2(0.5, -0.866025);
+      taps[6] = vec2(0.707107, 0.707107);
+      taps[7] = vec2(-0.707107, 0.707107);
+      taps[8] = vec2(-0.707107, -0.707107);
+      taps[9] = vec2(0.707107, -0.707107);
+      taps[10] = vec2(0.0, 0.55);
+      taps[11] = vec2(0.0, -0.55);
+      
+      for (int i = 0; i < NUM_TAPS; i++) {
+        vec2 offset = taps[i] * coc * texelSize;
+        vec2 sampleUv = vUv + offset;
+        vec4 sampleCol = texture2D(tDiffuse, sampleUv);
+        
+        // High-contrast contrast/luminosity factor to simulate iris blade shape highlights (gorgeous spherical bloom bokeh rings!)
+        float luma = dot(sampleCol.rgb, vec3(0.299, 0.587, 0.114));
+        float weight = 1.0 + max(0.0, luma - 0.55) * 3.8;
+        
+        sum += sampleCol * weight;
+        totalWeight += weight;
+      }
+      
+      gl_FragColor = sum / totalWeight;
+    }
+  `
+};
+
 const CinematicLensShader = {
   name: 'CinematicLensShader',
   uniforms: {
@@ -1933,6 +2024,7 @@ export const ThreeScene: React.FC = () => {
   const composerRef = useRef<EffectComposer | null>(null);
   const bloomPassRef = useRef<UnrealBloomPass | null>(null);
   const lensPassRef = useRef<ShaderPass | null>(null);
+  const dofPassRef = useRef<ShaderPass | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   
@@ -2791,9 +2883,23 @@ export const ThreeScene: React.FC = () => {
     // Set up high-precision Cinematic Post-Processing Pipeline
     const composer = new EffectComposer(renderer);
     composer.setSize(width, height);
+
+    // High-precision depth tracking for advanced Depth of Field
+    const depthTexture = new THREE.DepthTexture(width, height);
+    composer.renderTarget1.depthTexture = depthTexture;
+    composer.renderTarget2.depthTexture = depthTexture;
     
     const renderPass = new RenderPass(scene, camera);
     composer.addPass(renderPass);
+
+    // Custom depth-of-field post-processing effect focusing on primary asteroid
+    const dofPass = new ShaderPass(DepthOfFieldShader);
+    dofPass.uniforms.tDepth.value = depthTexture;
+    dofPass.uniforms.uResolution.value.set(width, height);
+    dofPass.uniforms.uNear.value = camera.near;
+    dofPass.uniforms.uFar.value = camera.far;
+    composer.addPass(dofPass);
+    dofPassRef.current = dofPass;
     
     // Unreal Bloom Pass: Beautiful, physics-accurate halo glow around core/engines/explosions
     const bloomPass = new UnrealBloomPass(
@@ -3892,6 +3998,9 @@ export const ThreeScene: React.FC = () => {
         renderer.setSize(width, height);
         if (composerRef.current) {
           composerRef.current.setSize(width, height);
+        }
+        if (dofPassRef.current && dofPassRef.current.uniforms.uResolution) {
+          dofPassRef.current.uniforms.uResolution.value.set(width, height);
         }
         camera.aspect = height > 0 ? (width / height) : 1;
         camera.updateProjectionMatrix();
@@ -6145,6 +6254,58 @@ export const ThreeScene: React.FC = () => {
         if (lensPassRef.current.uniforms.uDistortion) {
           lensPassRef.current.uniforms.uDistortion.value = targetDistortion;
         }
+      }
+
+      // Dynamic camera depth-of-field update focusing on the primary asteroid
+      if (dofPassRef.current && dofPassRef.current.uniforms) {
+        let focusDistance = 35.0; // default comfortable distance
+        const asteroids = asteroidsRef.current;
+        if (asteroids && asteroids.length > 0) {
+          // Focus on asteroidsList[0] (the primary mesh) if visible, or find the closest visible asteroid!
+          const primaryAsteroid = asteroids[0];
+          if (primaryAsteroid && primaryAsteroid.visible) {
+            focusDistance = camera.position.distanceTo(primaryAsteroid.position);
+          } else {
+            // Find closest visible asteroid in front of the camera
+            let closestDist = Infinity;
+            for (let j = 0; j < asteroids.length; j++) {
+              const rock = asteroids[j];
+              if (rock.visible && rock.position.z < camera.position.z) {
+                const dist = camera.position.distanceTo(rock.position);
+                if (dist < closestDist) {
+                  closestDist = dist;
+                }
+              }
+            }
+            if (closestDist !== Infinity) {
+              focusDistance = closestDist;
+            }
+          }
+        }
+        
+        // Dynamically adjust aperture based on ship phase (e.g., shallower for focus effects, deeper/wider for fast warp)
+        let targetAperture = 6.5;
+        let targetMaxBlur = 3.8;
+        
+        const warpTrans = warpStateRef.current ? warpStateRef.current.transition : 0.0;
+        if (currentPhase === 'INIT' || currentPhase === 'BOOT') {
+          targetAperture = 12.0; // wider depth of field for startup screen clarity
+          targetMaxBlur = 2.0;    // subtle background softness
+        } else if (warpTrans > 0.05) {
+          // During warp speed, pull focusing extremely tight to create a staggering G-force blurring tunnel effect!
+          targetAperture = 4.0; 
+          targetMaxBlur = 5.0 + warpTrans * 3.5;
+          focusDistance = 12.0; // focus right in front of the window during tunnel warp
+        }
+        
+        // Smoothly lerp uniforms to prevent sudden focus jumps or jarring flickers
+        const currentFocus = dofPassRef.current.uniforms.uFocusDistance.value;
+        const currentAperture = dofPassRef.current.uniforms.uAperture.value;
+        const currentMaxBlur = dofPassRef.current.uniforms.uMaxBlur.value;
+        
+        dofPassRef.current.uniforms.uFocusDistance.value = THREE.MathUtils.lerp(currentFocus, focusDistance, delta * 5.0);
+        dofPassRef.current.uniforms.uAperture.value = THREE.MathUtils.lerp(currentAperture, targetAperture, delta * 3.5);
+        dofPassRef.current.uniforms.uMaxBlur.value = THREE.MathUtils.lerp(currentMaxBlur, targetMaxBlur, delta * 3.5);
       }
 
       // Sync postprocessing bloom strength organically to the golden thermonuclear explosion flare timeline

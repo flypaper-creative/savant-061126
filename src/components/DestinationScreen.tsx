@@ -449,9 +449,9 @@ export const DestinationScreen: React.FC = () => {
   return (
     <div id="arrived-studio-screen" className="absolute inset-0 flex flex-col items-center justify-center font-mono text-zinc-300 p-3 sm:p-4 md:p-8 overflow-hidden bg-black/60 select-none z-15">
       
-      {/* High-fidelity optical depth overlays */}
+      {/* High-fidelity CRT and vector scan line overlays to look atmospheric */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30 pointer-events-none" />
-      <div className="absolute inset-0 bg-[#000000]/10  pointer-events-none" />
+      <div className="absolute inset-0 bg-[#000000]/10 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[size:100%_4px] pointer-events-none" />
 
       {/* =======================================
           A. PHASE: DESTINATION (STUDIO ARRIVED CARD)
